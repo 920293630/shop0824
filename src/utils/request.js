@@ -3,6 +3,7 @@ import qs from 'qs';
 import store from '../store';
 
 const baseUrl = "/api";
+var flag = true; // 防止同时多次请求都是过期时，不断弹框
 
 // 请求拦截
 // 用户登陆之后设置一个token
@@ -20,9 +21,15 @@ axios.interceptors.response.use((res) => {
   console.group("=== 本次响应的接口是：" + res.config.url + " ===");
   // 当token过期时处理
   if (res.data.code === 403) {
-    store.dispatch('userActions');
-    window.open('/#/login', '_self');
-    window.alert("登陆以失效，请重新登陆！");
+    if (flag) {
+      store.dispatch('userActions');
+      window.open('/#/login', '_self');
+      window.alert("登陆已失效，请重新登陆！");
+      flag = false;
+    }
+    return;
+  } else {
+    flag = true;
   }
   console.log(res);
   console.groupEnd("=== 响应结束 ===");
@@ -290,6 +297,69 @@ export const requestDelSpecs = (data) => {
   return axios({
     method: 'post',
     url: baseUrl + '/api/specsdelete',
+    data: qs.stringify(data)
+  });
+}
+
+
+/* 商品管理操作发送请求 */
+// 添加商品
+export const requestAddGoods = (data) => {
+  let form = new FormData();
+  for (let key in data) {
+    form.append(key, data[key]);
+  }
+  return axios({
+    method: 'post',
+    url: baseUrl + '/api/goodsadd',
+    data: form
+  });
+}
+
+// 获取商品总数
+export const requestGoodsCount = () => {
+  return axios({
+    method: 'get',
+    url: baseUrl + '/api/goodscount'
+  });
+}
+
+// 获取商品列表
+export const requestGoodsList = (params) => {
+  return axios({
+    method: 'get',
+    url: baseUrl + '/api/goodslist',
+    params: params
+  });
+}
+
+// 获取商品详细信息
+export const requestGoodsDetail = (params) => {
+  return axios({
+    method: 'get',
+    url: baseUrl + '/api/goodsinfo',
+    params: params
+  });
+}
+
+// 修改商品信息
+export const requestEditGoods = (data) => {
+  let form = new FormData();
+  for (let key in data) {
+    form.append(key, data[key]);
+  }
+  return axios({
+    method: 'post',
+    url: baseUrl + '/api/goodsedit',
+    data: form
+  });
+}
+
+// 删除商品
+export const requestDelGoods = (data) => {
+  return axios({
+    method: 'post',
+    url: baseUrl + '/api/goodsdelete',
     data: qs.stringify(data)
   });
 }

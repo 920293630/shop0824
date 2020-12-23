@@ -1,3 +1,7 @@
-export default {
+import {
+  priceFilter
+} from './priceFilter';
 
+export default {
+  priceFilter
 }

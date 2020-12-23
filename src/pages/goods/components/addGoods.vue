@@ -3,7 +3,6 @@
     <el-dialog
       :title="info.title"
       :visible.sync="info.show"
-      itemtype=""
       @opened="opened"
       @closed="cancel"
     >
@@ -85,10 +84,11 @@
             :on-remove="removeImg"
             :on-change="changeImg"
             :auto-upload="false"
-            :limit="1"
             :on-exceed="exceedMsg"
+            :limit="1"
             ref="imgUpload"
           >
+            <img :src="dialogImageUrl" alt="" />
             <i class="el-icon-plus"></i>
           </el-upload>
           <el-dialog :visible.sync="dialogVisible">
@@ -106,7 +106,6 @@
             ></el-option>
           </el-select>
         </el-form-item>
-
         <el-form-item label="规格属性" :label-width="formLabelWidth">
           <el-select v-model="form.specsattr" placeholder="请选择">
             <el-option
@@ -154,7 +153,12 @@
 
 <script>
 import { mapActions, mapGetters } from "vuex";
-import { msgAlert } from "../../../utils/alert";
+import { errorAlert, msgAlert, successAlert } from "../../../utils/alert";
+import {
+  requestAddGoods,
+  requestEditGoods,
+  requestGoodsDetail,
+} from "../../../utils/request";
 import E from "wangeditor";
 
 export default {
@@ -192,24 +196,29 @@ export default {
       let index = this.cateList.findIndex(
         (item) => item.id === this.form.first_cateid
       );
-      this.form.second_cateid = "";
+      if (index !== -1) {
+        this.form.second_cateid = this.cateList[index].children[0].id;
+      }
+      // this.form.second_cateid = "";
       return this.cateList[index] ? this.cateList[index].children : "";
     },
     specsAttrList() {
       let index = this.sList.specsList.findIndex(
         (item) => item.id === this.form.specsid
       );
-      this.form.specsattr = [];
-      return this.sList.specsList[index]
-        ? this.sList.specsList[index].attrs
-        : "";
+      if (index !== -1) {
+        // console.log(this.sList.specsList[index].attrs);
+        this.form.specsattr = this.sList.specsList[index].attrs[0];
+      }
+      // this.form.specsattr = [];
+      return index !== -1 ? this.sList.specsList[index].attrs : [];
     },
   },
   methods: {
     ...mapActions({
       requestCateList: "cate/listActions",
       requestSpecsList: "specs/specsListActions",
-      requestGoodsList: "goods/listActions",
+      requestGoodsList: "goods/goodsListActions",
       requestGoodsCount: "goods/countActions",
     }),
     cancel() {
@@ -226,15 +235,70 @@ export default {
     removeImg() {
       this.form.img = "";
     },
-    changeImg() {},
-    exceedMsg() {},
+    changeImg(file, fileList) {
+      console.log(this.$refs.imgUpload);
+      console.log(this.$refs.imgUpload.uploadFiles[0].url);
+      // 限制上传图片类型
+      let ext = ["jpg", "jpeg", "png", "gif"];
+      let imgExt = file.name.slice(file.name.lastIndexOf(".") + 1);
+      if (!ext.some((item) => item === imgExt)) {
+        errorAlert("仅支持：" + ext.join("，") + "等格式图片！");
+        this.$refs.imgUpload.clearFiles();
+        return;
+      }
+
+      // 限制图片上传大小
+      if (file.size > 2 * 1024 * 1024) {
+        errorAlert("图片大小超过2M，不支持上传！");
+        this.$refs.imgUpload.clearFiles();
+        return;
+      }
+
+      this.form.img = file.raw;
+    },
+    exceedMsg() {
+      errorAlert("不支持上传多张图片");
+    },
     opened() {
       this.editor = new E("#editor");
       this.editor.create();
       this.editor.txt.html("");
       this.$refs.form.clearValidate();
     },
-    sendGoods() {},
+    callback(res) {
+      if (res.data.code === 200) {
+        this.msgShow = false;
+        this.info.show = false;
+        successAlert(res.data.msg);
+        this.requestGoodsCount();
+        this.requestGoodsList();
+      } else {
+        errorAlert(res.data.msg);
+      }
+    },
+    sendGoods() {
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          this.form.description = this.editor.txt.html();
+          if (!this.form.id) {
+            requestAddGoods(this.form).then(this.callback);
+          } else {
+            requestEditGoods(this.form).then(this.callback);
+          }
+        }
+      });
+    },
+    getDetail(id) {
+      requestGoodsDetail({ id: id }).then((res) => {
+        if (res.data.code === 200) {
+          this.form = res.data.list;
+          this.form.second_cateid = res.data.list.second_cateid;
+          this.form.specsattr = res.data.list.specsattr;
+          this.editor.txt.html(res.data.list.description);
+          this.form.id = id;
+        }
+      });
+    },
   },
   mounted() {
     this.form = JSON.parse(JSON.stringify(this.formDefault));

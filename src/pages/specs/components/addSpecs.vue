@@ -133,8 +133,6 @@ export default {
   },
   mounted() {
     this.form = JSON.parse(JSON.stringify(this.formDefault));
-    // this.requestSpecsCount();
-    // this.requestSpecsList();
   },
 };
 </script>
