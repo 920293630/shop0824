@@ -110,7 +110,18 @@ export default {
         "el-icon-s-home",
         "el-icon-s-shop",
       ],
-      urls: ["home", "menu", "role", "user", "category", "specs", "goods"],
+      urls: [
+        "home",
+        "menu",
+        "role",
+        "user",
+        "category",
+        "specs",
+        "goods",
+        "member",
+        "banner",
+        "seckill"
+      ],
       formLabelWidth: "120px",
       magShow: true,
     };

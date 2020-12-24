@@ -86,13 +86,13 @@
             :auto-upload="false"
             :on-exceed="exceedMsg"
             :limit="1"
+            :file-list="fileList"
             ref="imgUpload"
           >
-            <img :src="dialogImageUrl" alt="" />
             <i class="el-icon-plus"></i>
           </el-upload>
           <el-dialog :visible.sync="dialogVisible">
-            <img width="100%" :src="dialogImageUrl" alt="" />
+            <img width="100%" :src="imageUrl" alt="" />
           </el-dialog>
         </el-form-item>
 
@@ -182,7 +182,8 @@ export default {
       },
       formLabelWidth: "120px",
       dialogVisible: false,
-      dialogImageUrl: "",
+      imageUrl: "",
+      fileList: [],
       editor: "",
       msgShow: true,
     };
@@ -199,7 +200,6 @@ export default {
       if (index !== -1) {
         this.form.second_cateid = this.cateList[index].children[0].id;
       }
-      // this.form.second_cateid = "";
       return this.cateList[index] ? this.cateList[index].children : "";
     },
     specsAttrList() {
@@ -207,10 +207,8 @@ export default {
         (item) => item.id === this.form.specsid
       );
       if (index !== -1) {
-        // console.log(this.sList.specsList[index].attrs);
         this.form.specsattr = this.sList.specsList[index].attrs[0];
       }
-      // this.form.specsattr = [];
       return index !== -1 ? this.sList.specsList[index].attrs : [];
     },
   },
@@ -221,23 +219,23 @@ export default {
       requestGoodsList: "goods/goodsListActions",
       requestGoodsCount: "goods/countActions",
     }),
+    // 清空表单数据
     cancel() {
       if (this.msgShow) {
         msgAlert("取消操作");
       }
       this.form = JSON.parse(JSON.stringify(this.formDefault));
       this.$refs.imgUpload.clearFiles();
+      this.fileList = [];
     },
     showImg(file) {
-      this.dialogImageUrl = file.url;
+      this.imageUrl = file.url;
       this.dialogVisible = true;
     },
     removeImg() {
       this.form.img = "";
     },
     changeImg(file, fileList) {
-      console.log(this.$refs.imgUpload);
-      console.log(this.$refs.imgUpload.uploadFiles[0].url);
       // 限制上传图片类型
       let ext = ["jpg", "jpeg", "png", "gif"];
       let imgExt = file.name.slice(file.name.lastIndexOf(".") + 1);
@@ -294,6 +292,9 @@ export default {
           this.form = res.data.list;
           this.form.second_cateid = res.data.list.second_cateid;
           this.form.specsattr = res.data.list.specsattr;
+          if (this.form.img) {
+            this.fileList.push({ url: this.$api + this.form.img });
+          }
           this.editor.txt.html(res.data.list.description);
           this.form.id = id;
         }

@@ -1,12 +1,12 @@
 <template>
   <div>
-    <el-button type="primary" @click="addMember">添加会员</el-button>
-    <el-addmember :info="info"></el-addmember>
+    <v-editmember :info="info" ref="editMember"></v-editmember>
+    <v-memberlist @editMember="editMember"></v-memberlist>
   </div>
 </template>
 
 <script>
-import vAddmember from "./components/addMember";
+import vEditmember from "./components/editMember";
 import vMemberlist from "./components/memberList";
 
 export default {
@@ -15,19 +15,20 @@ export default {
       info: {
         show: false,
         title: "",
-        btnText,
+        btnText: "",
       },
     };
   },
   methods: {
-    addMember() {
+    editMember() {
       this.info.show = true;
-      this.info.title = "添加会员";
-      this.info.btnText = "添加";
+      this.info.title = "修改会员";
+      this.info.btnText = "修改";
+      this.$refs.editMember.getDetail(id);
     },
   },
   components: {
-    vAddmember,
+    vEditmember,
     vMemberlist,
   },
 };

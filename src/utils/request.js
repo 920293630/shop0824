@@ -363,3 +363,87 @@ export const requestDelGoods = (data) => {
     data: qs.stringify(data)
   });
 }
+
+
+/* 会员管理操作发送请求 */
+// 获取会员列表
+export const requestMemberList = (params) => {
+  return axios({
+    method: 'get',
+    url: baseUrl + '/api/memberlist',
+    params: params
+  });
+}
+
+// 获取会员详情
+export const requestMemberDetail = (params) => {
+  return axios({
+    method: 'get',
+    url: baseUrl + '/api/memberinfo',
+    params: params
+  });
+}
+
+// 修改会员信息
+export const requestEditMember = (data) => {
+  return axios({
+    method: 'post',
+    url: baseUrl + '/api/memberedit',
+    data: qs.stringify(data)
+  });
+}
+
+
+/* 轮播图管理操作发送请求 */
+// 添加轮播图
+export const requestAddBanner = (data) => {
+  let form = new FormData();
+  for (let key in data) {
+    form.append(key, data[key]);
+  }
+  return axios({
+    method: 'post',
+    url: baseUrl + '/api/banneradd',
+    data: form
+  });
+}
+
+// 获取轮播图列表
+export const requestBannerList = (params) => {
+  return axios({
+    method: 'get',
+    url: baseUrl + '/api/bannerlist',
+    params: params
+  });
+}
+
+// 获取轮播图详情
+export const requestBannerDetail = (params) => {
+  return axios({
+    method: 'get',
+    url: baseUrl + '/api/bannerinfo',
+    params: params
+  });
+}
+
+// 修改轮播图
+export const requestEditBanner = (data) => {
+  let form = new FormData();
+  for (let key in data) {
+    form.append(key, data[key]);
+  }
+  return axios({
+    method: 'post',
+    url: baseUrl + '/api/banneredit',
+    data: form
+  });
+}
+
+// 删除轮播图
+export const requestDelBanner = (data) => {
+  return axios({
+    method: 'post',
+    url: baseUrl + '/api/bannerdelete',
+    data: qs.stringify(data)
+  });
+}

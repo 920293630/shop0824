@@ -43,6 +43,7 @@
             :on-remove="removeImg"
             :on-change="changeImg"
             :auto-upload="false"
+            :file-list="fileList"
             :limit="1"
             :on-exceed="exceedMsg"
             ref="imgUpload"
@@ -50,7 +51,7 @@
             <i class="el-icon-plus"></i>
           </el-upload>
           <el-dialog :visible.sync="dialogVisible">
-            <img width="100%" :src="dialogImageUrl" alt="" />
+            <img width="100%" :src="imageUrl" alt="" />
           </el-dialog>
         </el-form-item>
         <el-form-item label="分类状态" :label-width="formLabelWidth">
@@ -96,7 +97,8 @@ export default {
       },
       formLabelWidth: "120px",
       msgShow: true,
-      dialogImageUrl: "",
+      imageUrl: "",
+      fileList: [],
       dialogVisible: false,
     };
   },
@@ -133,7 +135,7 @@ export default {
       this.form.img = "";
     },
     showImg(file) {
-      this.dialogImageUrl = file.url;
+      this.imageUrl = file.url;
       this.dialogVisible = true;
     },
     exceedMsg() {
@@ -146,6 +148,7 @@ export default {
       }
       this.form = JSON.parse(JSON.stringify(this.formDefault));
       this.$refs.imgUpload.clearFiles();
+      this.fileList = [];
     },
     // 添加和修改发送请求后的回调
     callback(res) {
@@ -174,7 +177,9 @@ export default {
         if (res.data.code === 200) {
           this.form = res.data.list;
           this.form.id = id;
-          this.dialogImageUrl = this.$api + this.form.img;
+          if (this.form.img) {
+            this.fileList.push({ url: this.$api + this.form.img });
+          }
         }
       });
     },
