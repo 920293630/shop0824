@@ -20,7 +20,7 @@ export default {
     };
   },
   methods: {
-    editMember() {
+    editMember(id) {
       this.info.show = true;
       this.info.title = "修改会员";
       this.info.btnText = "修改";

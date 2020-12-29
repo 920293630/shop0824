@@ -31,7 +31,7 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="200">
         <template slot-scope="scope">
-          <el-button size="mini" @click="editMember(scope.row.id)">
+          <el-button size="mini" @click="editMember(scope.row.uid)">
             编辑
           </el-button>
         </template>
@@ -53,7 +53,9 @@ export default {
     ...mapActions({
       requestMemberList: "member/listActions",
     }),
-    editMember(id) {},
+    editMember(id) {
+      this.$emit("editMember", id);
+    },
   },
   mounted() {
     this.requestMemberList();

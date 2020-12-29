@@ -149,6 +149,7 @@ export default {
       this.form = JSON.parse(JSON.stringify(this.formDefault));
       this.$refs.imgUpload.clearFiles();
       this.fileList = [];
+      this.msgShow = true;
     },
     // 添加和修改发送请求后的回调
     callback(res) {

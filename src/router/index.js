@@ -5,7 +5,7 @@ import store from '../store';
 Vue.use(Router);
 
 function routeGuard(url) {
-  return store.state.userInfo.menus_url.some(i => i == url)
+  return store.state.userInfo ? store.state.userInfo.menus_url.some(i => i == url) : false
 }
 
 export default new Router({
@@ -89,12 +89,20 @@ export default new Router({
         }
       },
       {
+        path: 'seckill',
+        name: '秒杀活动',
+        component: () => import('../pages/seckill/seckill.vue'),
+        beforeEnter(to, from, next) {
+          routeGuard('seckill') ? next() : next('/');
+        }
+      },
+      {
         path: '',
         redirect: 'home',
       },
     ]
   }, {
     path: '*',
-    redirect: '/login'
+    redirect: '/home'
   }]
 })

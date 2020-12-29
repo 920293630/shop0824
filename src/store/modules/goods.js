@@ -25,10 +25,13 @@ const mutations = {
 }
 
 const actions = {
-  goodsListActions(context) {
-    let params = {
-      size: context.state.list.size,
-      page: context.state.list.page
+  goodsListActions(context, all) {
+    let params = "";
+    if (!all) {
+      params = {
+        size: context.state.list.size,
+        page: context.state.list.page
+      }
     }
     requestGoodsList(params).then((res) => {
       if (res.data.code === 200) {

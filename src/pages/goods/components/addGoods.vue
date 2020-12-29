@@ -227,6 +227,7 @@ export default {
       this.form = JSON.parse(JSON.stringify(this.formDefault));
       this.$refs.imgUpload.clearFiles();
       this.fileList = [];
+      this.msgShow = true;
     },
     showImg(file) {
       this.imageUrl = file.url;

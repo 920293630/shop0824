@@ -55,6 +55,10 @@
 </template>
 
 <script>
+import { mapActions } from "vuex";
+import { errorAlert, msgAlert, successAlert } from "../../../utils/alert";
+import { requestEditMember, requestMemberDetail } from "../../../utils/request";
+
 export default {
   props: ["info"],
   data() {
@@ -68,11 +72,50 @@ export default {
         status: 1,
       },
       formLabelWidth: "120px",
+      msgShow: true,
     };
   },
   methods: {
-    cancel() {},
-    sendMember() {},
+    ...mapActions({
+      requestMemberList: "member/listActions",
+    }),
+    cancel() {
+      if (this.msgShow) {
+        msgAlert("取消操作");
+      }
+      this.form = JSON.parse(JSON.stringify(this.formDefault));
+      this.msgShow = true;
+    },
+    sendMember() {
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          requestEditMember({
+            uid: this.form.uid,
+            nickname: this.form.nickname,
+            phone: this.form.phone,
+            password: this.form.password,
+            status: this.form.status,
+          }).then((res) => {
+            if (res.data.code === 200) {
+              this.msgShow = false;
+              this.info.show = false;
+              successAlert(res.data.msg);
+              this.requestMemberList();
+            } else {
+              errorAlert(res.data.msg);
+            }
+          });
+        }
+      });
+    },
+    getDetail(id) {
+      requestMemberDetail({ uid: id }).then((res) => {
+        if (res.data.code === 200) {
+          this.form = res.data.list;
+          this.form.password = "";
+        }
+      });
+    },
   },
   mounted() {
     this.form = JSON.parse(JSON.stringify(this.formDefault));

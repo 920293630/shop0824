@@ -31,7 +31,10 @@ import 'element-ui/lib/theme-chalk/index.css';
 Vue.use(ElementUI);
 
 /* 声明一个全局变量存储 localhost:3000 */
+// 开发环境下
 Vue.prototype.$api = "http://localhost:3000";
+// 生产环境下
+// Vue.prototype.$api = "";
 
 /* eslint-disable no-new */
 new Vue({

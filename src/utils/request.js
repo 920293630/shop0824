@@ -1,9 +1,15 @@
 import axios from 'axios';
 import qs from 'qs';
 import store from '../store';
+import router from '../router';
 
+// 开发环境下
 const baseUrl = "/api";
-var flag = true; // 防止同时多次请求都是过期时，不断弹框
+
+// 生产环境下
+// const baseUrl = "";
+
+var userStatus = true; // 记录当前token状态,如果过期提示一次后，过滤后续请求
 
 // 请求拦截
 // 用户登陆之后设置一个token
@@ -13,7 +19,7 @@ axios.interceptors.request.use((config) => {
     config.headers.authorization = store.state.userInfo.token
   }
   console.log(config);
-  console.groupEnd("=== 请求结束 ===");
+  console.groupEnd();
   return config
 });
 // 响应拦截
@@ -21,18 +27,18 @@ axios.interceptors.response.use((res) => {
   console.group("=== 本次响应的接口是：" + res.config.url + " ===");
   // 当token过期时处理
   if (res.data.code === 403) {
-    if (flag) {
+    if (userStatus) {
       store.dispatch('userActions');
-      window.open('/#/login', '_self');
+      router.push('/login')
       window.alert("登陆已失效，请重新登陆！");
-      flag = false;
+      userStatus = false;
     }
     return;
   } else {
-    flag = true;
+    userStatus = true;
   }
   console.log(res);
-  console.groupEnd("=== 响应结束 ===");
+  console.groupEnd();
   return res;
 });
 
@@ -367,11 +373,10 @@ export const requestDelGoods = (data) => {
 
 /* 会员管理操作发送请求 */
 // 获取会员列表
-export const requestMemberList = (params) => {
+export const requestMemberList = () => {
   return axios({
     method: 'get',
     url: baseUrl + '/api/memberlist',
-    params: params
   });
 }
 
@@ -444,6 +449,52 @@ export const requestDelBanner = (data) => {
   return axios({
     method: 'post',
     url: baseUrl + '/api/bannerdelete',
+    data: qs.stringify(data)
+  });
+}
+
+/* 秒杀活动管理操作发送请求 */
+// 添加活动
+export const requestAddSeckill = (data) => {
+  return axios({
+    method: 'post',
+    url: baseUrl + '/api/seckadd',
+    data: qs.stringify(data)
+  });
+}
+
+// 秒杀活动列表
+export const requestSeckillList = (params) => {
+  return axios({
+    method: 'get',
+    url: baseUrl + '/api/secklist',
+    params: params
+  });
+}
+
+// 获取活动详情
+export const requestSeckillDetail = (params) => {
+  return axios({
+    method: 'get',
+    url: baseUrl + '/api/seckinfo',
+    params: params
+  });
+}
+
+// 修改秒杀活动
+export const requestEditSeckill = (data) => {
+  return axios({
+    method: 'post',
+    url: baseUrl + '/api/seckedit',
+    data: qs.stringify(data)
+  });
+}
+
+// 删除秒杀活动
+export const requestDelSeckill = (data) => {
+  return axios({
+    method: 'post',
+    url: baseUrl + '/api/seckdelete',
     data: qs.stringify(data)
   });
 }
